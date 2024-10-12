@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 
+# TODO: ADD A THRESHOLD SUCH THAT TOO SIMILAR ANSWERS ARE NOT ADDED TO THE DB
+
 load_dotenv()
 
 app = FastAPI()
