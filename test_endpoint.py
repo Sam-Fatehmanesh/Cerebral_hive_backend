@@ -2,7 +2,7 @@ import requests
 import json
 
 def test_api():
-    base_url = "http://localhost:8084/api"
+    base_url = "http://localhost:8090/api"
     headers = {"Content-Type": "application/json"}
     timeout = 10  # 10 seconds timeout
 
