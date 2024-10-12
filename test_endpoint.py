@@ -1,26 +1,38 @@
 import requests
 import json
 
-def test_query_api():
-    url = "http://localhost:8000/api/query"
+def test_api():
+    base_url = "http://localhost:8000/api"
     headers = {"Content-Type": "application/json"}
     
-    # Test data
-    data = {
-        "query": "What is the capital of France?",
-        "continue_api_key": "your_continue_api_key_here"
-    }
+    # Test get_context
+    query = {"query": "What is the capital of France?"}
+    response = requests.post(f"{base_url}/get_context", headers=headers, data=json.dumps(query))
     
-    # Send POST request
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    
-    # Check response
     if response.status_code == 200:
-        print("Success!")
+        print("Get Context - Success!")
+        context = response.json()["context"]
+        print("Context:", context)
+    else:
+        print("Get Context - Error:", response.status_code)
+        print("Response:", response.text)
+    
+    # Simulate answer generation (this would be done by the Continue frontend)
+    answer = "The capital of France is Paris."
+    
+    # Test store_answer
+    data = {
+        "query": query["query"],
+        "answer": {"answer": answer}
+    }
+    response = requests.post(f"{base_url}/store_answer", headers=headers, data=json.dumps(data))
+    
+    if response.status_code == 200:
+        print("Store Answer - Success!")
         print("Response:", response.json())
     else:
-        print("Error:", response.status_code)
+        print("Store Answer - Error:", response.status_code)
         print("Response:", response.text)
 
 if __name__ == "__main__":
-    test_query_api()
+    test_api()
