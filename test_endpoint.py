@@ -2,7 +2,7 @@ import requests
 import json
 
 def test_api():
-    base_url = "http://localhost:8000/api"
+    base_url = "http://localhost:8084/api"
     headers = {"Content-Type": "application/json"}
     
     # Test get_context
