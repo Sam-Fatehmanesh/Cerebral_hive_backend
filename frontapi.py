@@ -24,6 +24,7 @@ class ChatCompletionRequest(BaseModel):
 @app.post("/v1/chat/completions")
 async def chat_completions(request: ChatCompletionRequest):
     try:
+        
         # Here we would process the request, analyze the prompt,
         # inject extra context, and send it to the actual LLM.
         # For now, we'll just return a mock response.
@@ -31,7 +32,7 @@ async def chat_completions(request: ChatCompletionRequest):
         messages = request.messages
         prompt = messages[-1]['content'] if messages else ""
 
-            
+
         
 
 
