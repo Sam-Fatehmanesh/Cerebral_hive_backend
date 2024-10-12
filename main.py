@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import httpx
-import pinecone
+from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 
 load_dotenv()
@@ -11,8 +11,18 @@ load_dotenv()
 app = FastAPI()
 
 # Initialize Pinecone
-pinecone.init(api_key=os.getenv("PINECONE_API_KEY"), environment=os.getenv("PINECONE_ENVIRONMENT"))
-index = pinecone.Index(os.getenv("PINECONE_INDEX_NAME"))
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+index_name = "quickstart"
+pc.create_index(
+    name=index_name,
+    dimension=1024, # Replace with your model dimensions
+    metric="cosine", # Replace with your model metric
+    spec=ServerlessSpec(
+        cloud="aws",
+        region="us-east-1"
+    ) 
+)
+index = pc.Index(index_name)
 
 # Initialize OpenAI client
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
