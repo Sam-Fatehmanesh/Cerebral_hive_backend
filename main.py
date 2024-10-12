@@ -2,7 +2,6 @@ import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
-import httpx
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 
@@ -36,7 +35,9 @@ openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class Query(BaseModel):
     query: str
-    continue_api_key: str
+
+class Answer(BaseModel):
+    answer: str
 
 async def generate_embedding(text: str):
     response = await openai_client.embeddings.create(model="text-embedding-ada-002", input=text)
@@ -50,8 +51,8 @@ async def search_pinecone(embedding):
     )
     return [match.metadata.text for match in results.matches]
 
-@app.post("/api/query")
-async def query_api(query: Query):
+@app.post("/api/get_context")
+async def get_context(query: Query):
     try:
         # Generate embedding for the query
         embedding = await generate_embedding(query.query)
@@ -59,25 +60,16 @@ async def query_api(query: Query):
         # Search Pinecone for relevant context
         context = await search_pinecone(embedding)
         
-        # Forward request to Continue API with added context
-        async with httpx.AsyncClient() as client:
-            continue_response = await client.post(
-                "https://continue.dev/api/query",
-                json={
-                    "query": query.query,
-                    "context": context,
-                    "apiKey": query.continue_api_key
-                }
-            )
-        
-        # Extract the answer from the Continue API response
-        answer = continue_response.json()["answer"]
-        
-        # Store the answer in Pinecone
-        await store_answer(query.query, answer)
-        
-        return continue_response.json()
+        return {"context": context}
     
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/store_answer")
+async def store_answer_endpoint(query: Query, answer: Answer):
+    try:
+        await store_answer(query.query, answer.answer)
+        return {"message": "Answer stored successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
