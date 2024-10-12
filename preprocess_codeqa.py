@@ -2,6 +2,7 @@ import json
 import httpx
 from tqdm import tqdm
 
+#TODO
 #######################
 ###### ADD A THRESHOLD SUCH THAT TOO SIMILAR ANSWERS ARE NOT ADDED TO THE DB
 #####################
