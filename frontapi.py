@@ -31,6 +31,9 @@ async def chat_completions(request: ChatCompletionRequest):
         messages = request.messages
         prompt = messages[-1]['content'] if messages else ""
 
+            
+        
+
 
         response = {
             "id": "chatcmpl-123",
