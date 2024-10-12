@@ -2,6 +2,11 @@ import json
 import httpx
 from tqdm import tqdm
 
+#TODO
+#######################
+###### ADD A THRESHOLD SUCH THAT TOO SIMILAR ANSWERS ARE NOT ADDED TO THE DB
+#####################
+
 def download_file(url, filename):
     with httpx.stream("GET", url) as response:
         total_size = int(response.headers.get("Content-Length", 0))
