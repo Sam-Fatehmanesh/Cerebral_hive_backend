@@ -28,6 +28,10 @@ async def chat_completions(request: ChatCompletionRequest):
         # inject extra context, and send it to the actual LLM.
         # For now, we'll just return a mock response.
 
+        messages = request.messages
+        prompt = messages[-1]['content'] if messages else ""
+
+
         response = {
             "id": "chatcmpl-123",
             "object": "chat.completion",
