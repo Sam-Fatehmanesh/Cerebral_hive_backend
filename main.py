@@ -39,26 +39,26 @@ class Query(BaseModel):
 class Answer(BaseModel):
     answer: str
 
-async def generate_embedding(text: str):
-    response = await openai_client.embeddings.create(model="text-embedding-ada-002", input=text)
+def generate_embedding(text: str):
+    response = openai_client.embeddings.create(model="text-embedding-ada-002", input=text)
     return response.data[0].embedding
 
-async def search_pinecone(embedding):
+def search_pinecone(embedding):
     results = index.query(
         vector=embedding,
         top_k=5,
         include_metadata=True
     )
-    return [match.metadata.text for match in results.matches]
+    return [match.metadata.get('text', '') for match in results.matches]
 
 @app.post("/api/get_context")
 async def get_context(query: Query):
     try:
         # Generate embedding for the query
-        embedding = await generate_embedding(query.query)
+        embedding = generate_embedding(query.query)
         
         # Search Pinecone for relevant context
-        context = await search_pinecone(embedding)
+        context = search_pinecone(embedding)
         
         return {"context": context}
     
@@ -68,13 +68,13 @@ async def get_context(query: Query):
 @app.post("/api/store_answer")
 async def store_answer_endpoint(query: Query, answer: Answer):
     try:
-        await store_answer(query.query, answer.answer)
+        store_answer(query.query, answer.answer)
         return {"message": "Answer stored successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-async def store_answer(question: str, answer: str):
-    embedding = await generate_embedding(answer)
+def store_answer(question: str, answer: str):
+    embedding = generate_embedding(answer)
     index.upsert(
         vectors=[{
             "id": f"q_{hash(question)}",
@@ -86,6 +86,10 @@ async def store_answer(question: str, answer: str):
         }]
     )
 
+@app.get("/test")
+async def test_endpoint():
+    return {"message": "Server is running"}
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
