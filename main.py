@@ -15,8 +15,8 @@ pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index_name = "quickstart"
 pc.create_index(
     name=index_name,
-    dimension=1024, # Replace with your model dimensions
-    metric="cosine", # Replace with your model metric
+    dimension=1536,
+    metric="cosine",
     spec=ServerlessSpec(
         cloud="aws",
         region="us-east-1"
