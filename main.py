@@ -20,7 +20,7 @@ app = FastAPI()
 
 # Initialize Pinecone
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-index_name = "production"
+index_name = "production2"
 
 # Check if the index exists, create it if it doesn't
 if index_name not in pc.list_indexes().names():
