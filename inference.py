@@ -37,22 +37,6 @@ machine_learning_expert = Agent(
     instructions="I am an expert in machine learning. I can assist with ML algorithms, model selection, and implementation details.",
 )
 
-# google_search_agent = Agent(
-#     name="Google Search Agent",
-#     instructions="I am an expert in using Google Search to find relevant information. I can help with web searches and summarizing search results.",
-#     functions=[web_search],
-# )
-
-# search_results_decider_analyzer = Agent(
-#     name="Search Results Decider and Analyzer",
-#      instructions="I am an expert in analyzing search results and deciding which results to use for their html text. I can help with analyzing search results and deciding which results to use for their html text.",
-#      functions=[get_html_content],
-# )
-
-# web_information_extractor = Agent(
-#     name="Web Information Extractor",
-#     instructions="I am an expert in extracting information from web pages. I can help with extracting information from web pages.",
-# )
 web_scraper_agent = Agent(
     name="Web Scraper Agent",
     instructions="""
