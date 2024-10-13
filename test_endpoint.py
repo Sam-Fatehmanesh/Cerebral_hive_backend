@@ -1,34 +1,92 @@
+# import requests
+# import json
+
+
+# def test_api():
+#     base_url = "http://localhost:8090/"
+#     headers = {"Content-Type": "application/json"}
+#     timeout = 10  # 10 seconds timeout
+
+#     try:
+#         # Test post_query
+#         chat_completion_request = {
+#             "messages": [
+#                 {"role": "user", "content": "What is the least common type of dog?"}
+#             ],
+#             "model": "gpt-3.5-turbo",  # or whatever model you're using
+#             "max_tokens": 2048,
+#             "stream": False
+#         }
+#         response = requests.post(
+#             f"{base_url}/chat/completions",
+#             headers=headers,
+#             json=chat_completion_request,
+#             timeout=timeout
+#         )
+
+#         if response.status_code == 200:
+#             print("Chat Completion - Success!")
+#             print("Response:", response.json())
+#         else:
+#             print("Chat Completion - Error:", response.status_code)
+#             print("Response:", response.text)
+
+#         # Simulate answer generation (this would be done by the Continue frontend)
+#         answer = "The capital of France is Paris."
+
+#         # Test store_answer
+#         data = {
+#             "query": {"query": "What is the capital of France?"},
+#             "answer": {"answer": answer},
+#         }
+#         response = requests.post(
+#             f"{base_url}/store_answer", headers=headers, json=data, timeout=timeout
+#         )
+
+#         if response.status_code == 200:
+#             print("Store Answer - Success!")
+#             print("Response:", response.json())
+#         else:
+#             print("Store Answer - Error:", response.status_code)
+#             print("Response:", response.text)
+
+#     except requests.exceptions.RequestException as e:
+#         print(f"An error occurred: {e}")
+
+
+# if __name__ == "__main__":
+#     test_api()
+
+
+
 import requests
 import json
 
 
 def test_api():
-    base_url = "http://localhost:8090/"
+    base_url = "http://localhost:8090/api"
     headers = {"Content-Type": "application/json"}
     timeout = 10  # 10 seconds timeout
 
     try:
         # Test post_query
-        chat_completion_request = {
-            "messages": [
-                {"role": "user", "content": "What is the least common type of dog?"}
-            ],
-            "model": "gpt-3.5-turbo",  # or whatever model you're using
-            "max_tokens": 2048,
-            "stream": False
-        }
+        query = {"query": "What is the least common type of dog right in 2024?"}
         response = requests.post(
-            f"{base_url}/chat/completions",
+            f"{base_url}/post_query",
             headers=headers,
-            json=chat_completion_request,
-            timeout=timeout
+            json=query,
+            timeout=timeout,
+            stream=True,
         )
 
+        for chunk in response.iter_content(chunk_size=8192):
+            print(chunk.decode("utf-8"))
+
         if response.status_code == 200:
-            print("Chat Completion - Success!")
+            print("Get Context - Success!")
             print("Response:", response.json())
         else:
-            print("Chat Completion - Error:", response.status_code)
+            print("Get Context - Error:", response.status_code)
             print("Response:", response.text)
 
         # Simulate answer generation (this would be done by the Continue frontend)
