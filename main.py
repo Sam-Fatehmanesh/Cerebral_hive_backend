@@ -55,7 +55,7 @@ def search_pinecone(embedding):
     return [match.metadata.get("text", "") for match in results.matches]
 
 
-@app.post("/api/get_context")
+@app.post("/api/post_query")
 async def post_query(query: Query):
     try:
         embedding = generate_embedding(query.query)

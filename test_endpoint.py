@@ -8,10 +8,10 @@ def test_api():
     timeout = 10  # 10 seconds timeout
 
     try:
-        # Test get_context
+        # Test post_query
         query = {"query": "What is the capital of France?"}
         response = requests.post(
-            f"{base_url}/get_context",
+            f"{base_url}/post_query",
             headers=headers,
             json=query,
             timeout=timeout,
