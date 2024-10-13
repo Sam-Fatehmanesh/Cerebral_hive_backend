@@ -1,5 +1,12 @@
 import requests
 import json
+import sys
+import os
+
+# Add the parent directory to the Python path to import from main.py
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from main import print_vector_db_contents
 
 
 def test_api():
@@ -53,6 +60,10 @@ def test_api():
 
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
+
+    # Print the contents of the vector database
+    print("\nPrinting Vector Database Contents:")
+    print_vector_db_contents()
 
 
 if __name__ == "__main__":
