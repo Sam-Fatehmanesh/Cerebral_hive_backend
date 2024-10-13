@@ -5,6 +5,7 @@ from websearch import web_search, get_html_content
 
 client = Swarm()
 
+# Define domain expert agents using lambda functions
 python_expert = Agent(
     name="Python Expert",
     instructions="I am an expert in Python programming. I can help with Python syntax, best practices, and advanced concepts.",
