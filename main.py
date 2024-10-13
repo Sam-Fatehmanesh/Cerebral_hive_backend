@@ -61,7 +61,10 @@ async def post_query(query: Query):
         embedding = generate_embedding(query.query)
         context = search_pinecone(embedding)
 
-        return get_response(query.query + "\n\nContext:\n" + "\n".join(context))
+        return StreamingResponse(
+            get_response(query.query + "\n\nContext:\n" + "\n".join(context)),
+            media_type="text/event-stream",
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
