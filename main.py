@@ -61,7 +61,7 @@ async def get_context(query: Query):
         # Search Pinecone for relevant context
         context = search_pinecone(embedding)
 
-        return inference.stream_response(query.query, context)
+        inference.stream_response(query.query, context)
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
