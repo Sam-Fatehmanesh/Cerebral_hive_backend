@@ -102,22 +102,6 @@ expert_agents = [
     # web_scraper_agent,
 ]
 
-security_expert = Agent(
-    name="Security Expert",
-    instructions="I specialize in cybersecurity. I can help with encryption, defensive programming, and security best practices."
-)
-devops_expert = Agent(
-    name="DevOps Expert",
-    instructions="I am experienced in DevOps practices, including CI/CD, containerization, and managing cloud infrastructure."
-)
-mobile_development_expert = Agent(
-    name="Mobile Development Expert",
-    instructions="I specialize in mobile app development for both Android and iOS. I can assist with various frameworks such as Flutter and React Native."
-)
-
-# Add the new experts to the list
-expert_agents.extend([security_expert, devops_expert, mobile_development_expert])
-
 router_agent = Agent(
     name="Router Agent",
     instructions="""I am a router agent. I analyze the user's query and direct it to the most appropriate domain expert from the list of experts defined above (Python Expert, Math Expert, Data Structures Expert, Algorithms Expert, Web Development Expert, Database Expert, Machine Learning Expert, and Web Scraper Agent for getting information). If the query spans multiple domains, I can involve multiple experts from this list. My primary role is to ensure that queries are routed to the most relevant expert(s) for comprehensive and accurate responses.
