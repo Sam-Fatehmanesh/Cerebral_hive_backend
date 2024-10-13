@@ -1,10 +1,7 @@
 from swarm import Swarm, Agent
-from openai import OpenAI
 from websearch import scrape_web
 
-api_key = "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"
-openai_client = OpenAI(api_key=api_key)
-client = Swarm(client=openai_client)
+client = Swarm()
 
 # Define domain expert agents using lambda functions
 python_expert = Agent(
