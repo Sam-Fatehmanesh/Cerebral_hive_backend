@@ -10,7 +10,6 @@ import inference
 import time
 import asyncio
 import json
-from scipy.spatial.distance import cosine
 
 from inference import get_response
 
@@ -20,7 +19,7 @@ app = FastAPI()
 
 # Initialize Pinecone
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-index_name = "production2"
+index_name = "production"
 
 # Check if the index exists, create it if it doesn't
 if index_name not in pc.list_indexes().names():
@@ -55,18 +54,9 @@ def generate_embedding(text: str):
     return response.data[0].embedding
 
 
-def search_pinecone(embedding, top_k=10, relevance_threshold=0.7):
-    results = index.query(vector=embedding, top_k=top_k, include_metadata=True)
-    relevant_results = []
-    for match in results.matches:
-        if match.values:  # Check if values exist
-            similarity = 1 - cosine(embedding, match.values)
-            if similarity >= relevance_threshold:
-                relevant_results.append((match.metadata.get("text", ""), similarity))
-    
-    # Sort by similarity (highest to lowest) and take top 5
-    relevant_results.sort(key=lambda x: x[1], reverse=True)
-    return [text for text, _ in relevant_results[:5]]
+def search_pinecone(embedding):
+    results = index.query(vector=embedding, top_k=5, include_metadata=True)
+    return [match.metadata.get("text", "") for match in results.matches]
 
 class ChatCompletionRequest(BaseModel):
     messages: list
@@ -82,12 +72,7 @@ async def post_query(request: ChatCompletionRequest):
         embedding = generate_embedding(query)
         context = search_pinecone(embedding)
 
-        if context:
-            context_str = "\n\nRelevant Context:\n" + "\n".join(context)
-        else:
-            context_str = "\n\nNo relevant context found."
-
-        response = get_response(query + context_str)
+        response = get_response(query + "\n\nContext:\n" + "\n".join(context))
         
         async def generate():
             full_response = ""
@@ -148,8 +133,6 @@ async def post_query(request: ChatCompletionRequest):
                 }
             }
 
-            print("Chat Completion Response:", openai_response)
-
             return JSONResponse(content=openai_response)
 
     except Exception as e:
@@ -176,7 +159,6 @@ def store_answer(question: str, answer: str):
             }
         ]
     )
-    
 
 
 @app.get("/test")
