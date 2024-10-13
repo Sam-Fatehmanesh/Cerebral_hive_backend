@@ -1,6 +1,6 @@
 from swarm import Swarm, Agent
 from openai import OpenAI
-from websearch import get_html_content, scrape_google_results
+from websearch import scrape_web
 
 api_key = "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"
 openai_client = OpenAI(api_key=api_key)
@@ -53,31 +53,37 @@ machine_learning_expert = Agent(
 #     name="Web Information Extractor",
 #     instructions="I am an expert in extracting information from web pages. I can help with extracting information from web pages.",
 # )
-
-combined_web_agent = Agent(
-    name="Combined Web Agent",
-    instructions="""I am an expert in searching the web for relevant information. I can help with searching the web for relevant information.
-    1. Searching the web for relevant information using 'scrape_google_results'.
-    2. Extracting the text from the search results using 'get_html_content'.
-    3. Analyzing the extracted text to determine which parts are relevant to the user's query.
+web_scraper_agent = Agent(
+    name="Web Scraper Agent",
+    instructions="""
+    I am a specialized web scraper agent capable of gathering information from the internet using the "scrape_web" function.
+    My primary responsibilities include:
+    1. Executing web searches using 'scrape_web' to find relevant online content.
+    2. Scraping and extracting useful data from the search results.
+    3. Processing and summarizing the scraped information to provide concise and relevant answers.
+    4. Handling various types of queries that require up-to-date or specific online information.
+    IF THE RESPONSE IF VERY LONG, SUMMARIZE IT AND CITE THE SOURCES IF YOU CAN.
+    I will always utilize the "scrape_web" function when tasked with retrieving current data or answering questions that necessitate web-based research.
     """,
-    functions=[scrape_google_results, get_html_content],
+    functions=[scrape_web],
 )
 
 
 expert_agents = [
-    python_expert,
-    data_structures_expert,
-    algorithms_expert,
-    web_development_expert,
-    database_expert,
-    machine_learning_expert,
-    combined_web_agent,
+    # python_expert,
+    # data_structures_expert,
+    # algorithms_expert,
+    # web_development_expert,
+    # database_expert,
+    # machine_learning_expert,
+    web_scraper_agent,
 ]
 
 router_agent = Agent(
     name="Router Agent",
-    instructions="I am a router agent. I analyze the user's query and direct it to the most appropriate domain expert from the list of experts defined above (Python Expert, Data Structures Expert, Algorithms Expert, Web Development Expert, Database Expert, Machine Learning Expert, and Combined Web Agent for searching the web). If the query spans multiple domains, I can involve multiple experts from this list. My primary role is to ensure that queries are routed to the most relevant expert(s) for comprehensive and accurate responses. If a query involves querying the internet, I will use the Combined Web Agent.",
+    instructions="""I am a router agent. I analyze the user's query and direct it to the most appropriate domain expert from the list of experts defined above (Python Expert, Data Structures Expert, Algorithms Expert, Web Development Expert, Database Expert, Machine Learning Expert, and Web Scraper Agent for getting information). If the query spans multiple domains, I can involve multiple experts from this list. My primary role is to ensure that queries are routed to the most relevant expert(s) for comprehensive and accurate responses.
+    If the user specifically asks for up-to-date information or if their query requires real-time data, I will use the web scraper agent.
+    If I cannot route the query to any of the specific domain experts, I will default to using the web scraper agent to answer the question.""",
 )
 
 for expert in expert_agents:

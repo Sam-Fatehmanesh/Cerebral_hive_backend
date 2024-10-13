@@ -9,7 +9,7 @@ def test_api():
 
     try:
         # Test post_query
-        query = {"query": "Ask Google about what is the common type of dog"}
+        query = {"query": "What is the least common type of dog right in 2024?"}
         response = requests.post(
             f"{base_url}/post_query",
             headers=headers,

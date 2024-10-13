@@ -62,10 +62,14 @@ async def post_query(query: Query):
         context = search_pinecone(embedding)
 
         response = get_response(query.query + "\n\nContext:\n" + "\n".join(context))
-        content = response.messages[-1]["content"] if response else ""
+        response = max(
+            (message["content"] for message in response.messages if message["content"]),
+            key=len,
+            default="",
+        )
 
-        store_answer(query.query, content)
-        return {"response": content}
+        store_answer(query.query, response)
+        return {"response": response}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

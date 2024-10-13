@@ -7,12 +7,25 @@ def get_html_content(url):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        return response.text
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        for element in soup(["script", "style", "nav", "footer", "header"]):
+            element.decompose()
+
+        for element in soup.find_all(
+            class_=["ad", "advertisement", "sidebar", "comments"]
+        ):
+            element.decompose()
+
+        text = soup.get_text(separator=" ", strip=True)
+        cleaned_text = " ".join(text.split())
+        return cleaned_text
     except requests.RequestException as e:
-        return f"An error occurred while fetching the URL: {str(e)}"
+        return f"Error fetching URL: {str(e)}"
 
 
-def scrape_google_results(query, num_results=5):
+def scrape_web(query, num_results=5):
+    print("Scraping web for query:", query)
     try:
         # Construct the Google search URL
         search_url = f"https://www.google.com/search?{urlencode({'q': query})}"
@@ -32,16 +45,16 @@ def scrape_google_results(query, num_results=5):
 
         # Extract URLs from the search results
         urls = []
-        for result in search_results[:num_results]:
+        for result in search_results:
             link = result.find("a")
             if link and "href" in link.attrs:
                 urls.append(link["href"])
 
-        # Construct the output string
-        output = f"Top {num_results} results for '{query}':\n\n"
-        for i, url in enumerate(urls, 1):
-            output += f"{i}. {url}\n"
+        combined_content = ""
+        url = urls[0]
+        html_content = get_html_content(url)
+        combined_content += f"\n\nContent from {url}:\n{html_content}"
 
-        return output
+        return combined_content
     except Exception as e:
         return f"An error occurred during the web scraping: {str(e)}"
