@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
+import inference
 
 load_dotenv()
 
@@ -59,8 +60,8 @@ async def get_context(query: Query):
         
         # Search Pinecone for relevant context
         context = search_pinecone(embedding)
-        
-        return {"context": context}
+
+        return inference.stream_response(query.query, context)
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
