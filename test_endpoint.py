@@ -9,20 +9,26 @@ def test_api():
 
     try:
         # Test post_query
-        query = {"query": "What is the least common type of dog?"}
+        chat_completion_request = {
+            "messages": [
+                {"role": "user", "content": "What is the least common type of dog?"}
+            ],
+            "model": "gpt-3.5-turbo",  # or whatever model you're using
+            "max_tokens": 2048,
+            "stream": False
+        }
         response = requests.post(
-            f"{base_url}/completions",
+            f"{base_url}/chat/completions",
             headers=headers,
-            json=query,
-            timeout=timeout,
-            stream=True,
+            json=chat_completion_request,
+            timeout=timeout
         )
 
         if response.status_code == 200:
-            print("Get Context - Success!")
+            print("Chat Completion - Success!")
             print("Response:", response.json())
         else:
-            print("Get Context - Error:", response.status_code)
+            print("Chat Completion - Error:", response.status_code)
             print("Response:", response.text)
 
         # Simulate answer generation (this would be done by the Continue frontend)
