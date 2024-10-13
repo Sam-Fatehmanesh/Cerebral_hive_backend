@@ -7,6 +7,8 @@ from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 import inference
 import time
+import asyncio
+import json
 
 from inference import get_response
 
@@ -70,36 +72,61 @@ async def post_query(request: ChatCompletionRequest):
         context = search_pinecone(embedding)
 
         response = get_response(query + "\n\nContext:\n" + "\n".join(context))
-        _response = max(
-            (message["content"] for message in response.messages if message["content"]),
-            key=len,
-            default="",
-        )
+        
+        async def generate():
+            for message in response.messages:
+                if message["content"]:
+                    chunk = {
+                        "id": "chatcmpl-" + os.urandom(12).hex(),
+                        "object": "chat.completion.chunk",
+                        "created": int(time.time()),
+                        "model": request.model,
+                        "choices": [{
+                            "index": 0,
+                            "delta": {
+                                "role": "assistant",
+                                "content": message["content"]
+                            },
+                            "finish_reason": None
+                        }]
+                    }
+                    yield f"data: {json.dumps(chunk)}\n\n"
+                    await asyncio.sleep(0.01)
+            
+            yield "data: [DONE]\n\n"
 
-        store_answer(query, _response)
+        if request.stream:
+            return StreamingResponse(generate(), media_type="text/event-stream")
+        else:
+            _response = max(
+                (message["content"] for message in response.messages if message["content"]),
+                key=len,
+                default="",
+            )
 
-        openai_response = {
-            "id": "chatcmpl-" + os.urandom(12).hex(),
-            "object": "chat.completion",
-            "created": int(time.time()),
-            "model": request.model,
-            "choices": [{
-                "index": 0,
-                "message": {
-                    "role": "assistant",
-                    "content": _response
-                },
-                "finish_reason": "stop"
-            }],
-            "usage": {
-                "prompt_tokens": len(query.split()),
-                "completion_tokens": len(_response.split()),
-                "total_tokens": len(query.split()) + len(_response.split())
+            store_answer(query, _response)
+
+            openai_response = {
+                "id": "chatcmpl-" + os.urandom(12).hex(),
+                "object": "chat.completion",
+                "created": int(time.time()),
+                "model": request.model,
+                "choices": [{
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": _response
+                    },
+                    "finish_reason": "stop"
+                }],
+                "usage": {
+                    "prompt_tokens": len(query.split()),
+                    "completion_tokens": len(_response.split()),
+                    "total_tokens": len(query.split()) + len(_response.split())
+                }
             }
-        }
 
-        print("Response:", openai_response)
-        return JSONResponse(content=openai_response, media_type="application/json")
+            return JSONResponse(content=openai_response)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
