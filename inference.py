@@ -84,6 +84,7 @@ web_scraper_agent = Agent(
     3. Processing and summarizing the scraped information to provide concise and relevant answers.
     4. Handling various types of queries that require up-to-date or specific online information.
     IF THE RESPONSE IF VERY LONG, SUMMARIZE IT AND CITE THE SOURCES IF YOU CAN.
+    Add to the context if the responses use some sort of indication of adding the answer to the context or start with "add context"
     I will always utilize the "scrape_web" function when tasked with retrieving current data or answering questions that necessitate web-based research.
     """,
     functions=[scrape_web],
@@ -102,12 +103,38 @@ expert_agents = [
     # web_scraper_agent,
 ]
 
+security_expert = Agent(
+    name="Security Expert",
+    instructions="I specialize in cybersecurity. I can help with encryption, defensive programming, and security best practices."
+)
+devops_expert = Agent(
+    name="DevOps Expert",
+    instructions="I am experienced in DevOps practices, including CI/CD, containerization, and managing cloud infrastructure."
+)
+mobile_development_expert = Agent(
+    name="Mobile Development Expert",
+    instructions="I specialize in mobile app development for both Android and iOS. I can assist with various frameworks such as Flutter and React Native."
+)
+
+# Add the new experts to the list
+expert_agents.extend([security_expert, devops_expert, mobile_development_expert])
+
 router_agent = Agent(
     name="Router Agent",
-    instructions="""I am a router agent. I analyze the user's query and direct it to the most appropriate domain expert from the list of experts defined above (Python Expert, Math Expert, Data Structures Expert, Algorithms Expert, Web Development Expert, Database Expert, Machine Learning Expert, and Web Scraper Agent for getting information). If the query spans multiple domains, I can involve multiple experts from this list. My primary role is to ensure that queries are routed to the most relevant expert(s) for comprehensive and accurate responses.
-    If the user specifically asks for up-to-date information or if their query requires real-time data, I will use the web scraper agent.
-    If I cannot route the query to any of the specific domain experts, I will default to using the web scraper agent to answer the question.""",
+    instructions="""As the router agent, my role is to analyze the user's query and select the most appropriate domain expert from the available list (Python Expert, Data Structures Expert, Algorithms Expert, Web Development Expert, Database Expert, Machine Learning Expert, and more). I will consider the content and context of the query to determine the best expert to send it to. If a query relates to multiple domains, I will involve all relevant experts.
+
+- For queries related to Python, I refer them to the 'Python Expert.'
+- For data structure inquiries, I route them to the 'Data Structures Expert.'
+- Algorithm-related questions go to the 'Algorithms Expert.'
+- Queries about web development are directed to the 'Web Development Expert.'
+- Database-related questions are sent to the 'Database Expert.'
+- Machine learning queries are handled by the 'Machine Learning Expert.'
+- For real-time data or up-to-date information requests, I will utilize the 'Web Scraper Agent.'
+- If a query involves exploratory or outside knowledge like current technologies or techniques not covered directly, I may consult with the 'Web Scraper Agent.'
+
+I fall back on providing a query to the 'Web Scraper Agent' if the precise domain isn't clear or if the inquiry requires specific real-time data or updates. I ensure to derive expert advice collaboratively to offer a comprehensive response.""" 
 )
+
 
 for expert in expert_agents:
 
