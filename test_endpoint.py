@@ -6,7 +6,7 @@ def test_api():
     base_url = "https://cerebral-hive-backend.onrender.com"
     headers = {"Content-Type": "application/json"}
     timeout = 10  # 10 seconds timeout
-    query = "I am a query!"
+    query = "Consider the paths of length $16$ that follow the lines from the lower left corner to the upper right corner on an $8\times 8$ grid. Find the number of such paths that change direction exactly four times, as in the examples shown below. "
 
     try:
         # Test post_query

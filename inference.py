@@ -15,6 +15,11 @@ python_expert = Agent(
     instructions="I am an expert in Python programming. I can help with Python syntax, best practices, and advanced concepts.",
 )
 
+math_expert = Agent(
+    name="Math Expert",
+    instructions="I specialize in math. I can explain, analyze, and solve various mathematical problems with clear and concise reasoning",
+)
+
 data_structures_expert = Agent(
     name="Data Structures Expert",
     instructions="I specialize in data structures. I can explain various data structures and their implementations in different programming languages.",
@@ -74,6 +79,7 @@ web_scraper_agent = Agent(
 
 expert_agents = [
     python_expert,
+    math_expert,
     data_structures_expert,
     algorithms_expert,
     web_development_expert,
@@ -84,7 +90,7 @@ expert_agents = [
 
 router_agent = Agent(
     name="Router Agent",
-    instructions="""I am a router agent. I analyze the user's query and direct it to the most appropriate domain expert from the list of experts defined above (Python Expert, Data Structures Expert, Algorithms Expert, Web Development Expert, Database Expert, Machine Learning Expert, and Web Scraper Agent for getting information). If the query spans multiple domains, I can involve multiple experts from this list. My primary role is to ensure that queries are routed to the most relevant expert(s) for comprehensive and accurate responses.
+    instructions="""I am a router agent. I analyze the user's query and direct it to the most appropriate domain expert from the list of experts defined above (Python Expert, Math Expert, Data Structures Expert, Algorithms Expert, Web Development Expert, Database Expert, Machine Learning Expert, and Web Scraper Agent for getting information). If the query spans multiple domains, I can involve multiple experts from this list. My primary role is to ensure that queries are routed to the most relevant expert(s) for comprehensive and accurate responses.
     If the user specifically asks for up-to-date information or if their query requires real-time data, I will use the web scraper agent.
     If I cannot route the query to any of the specific domain experts, I will default to using the web scraper agent to answer the question.""",
 )
