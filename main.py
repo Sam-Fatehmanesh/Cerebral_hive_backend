@@ -7,7 +7,7 @@ from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 import inference
 
-from inference import stream_response
+from inference import get_response
 
 load_dotenv()
 
