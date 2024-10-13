@@ -45,6 +45,11 @@ machine_learning_expert = Agent(
     instructions="I am an expert in machine learning. I can assist with ML algorithms, model selection, and implementation details.",
 )
 
+quantum_systems_expert = Agent(
+    name="Quantum Systems Expert",
+    instructions="I am an expert in quantum systems. I can assist with quantum algorithms, model selection, and implementation details.",
+)
+
 # Add the new context-adding expert
 context_adding_expert = Agent(
     name="Context Adding Expert",
@@ -99,6 +104,7 @@ expert_agents = [
     web_development_expert,
     database_expert,
     machine_learning_expert,
+    quantum_systems_expert,
     context_adding_expert,  # Add the new expert to the list
     # web_scraper_agent,
 ]
