@@ -60,7 +60,7 @@ combined_web_agent = Agent(
     2. Analyzing search results and deciding which results to use for their HTML text.
     3. Extracting specific information from web pages.
     I can help with web searches, summarizing search results, analyzing search results, and extracting information from web pages.""",
-    functions=[web_search, get_html_content],
+    functions=[scrape_google_results, get_html_content],
 )
 
 
