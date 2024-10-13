@@ -3,10 +3,9 @@ from openai import OpenAI
 from websearch import get_html_content, scrape_google_results
 
 
-OPENAI_API_KEY = "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"
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-client = Swarm(client=openai_client)
+client = Swarm()
 
+# Define domain expert agents using lambda functions
 python_expert = Agent(
     name="Python Expert",
     instructions="I am an expert in Python programming. I can help with Python syntax, best practices, and advanced concepts.",
@@ -37,30 +36,31 @@ machine_learning_expert = Agent(
     instructions="I am an expert in machine learning. I can assist with ML algorithms, model selection, and implementation details.",
 )
 
-# google_search_agent = lambda: Agent(
+# google_search_agent = Agent(
 #     name="Google Search Agent",
 #     instructions="I am an expert in using Google Search to find relevant information. I can help with web searches and summarizing search results.",
 #     functions=[web_search],
 # )
 
-# search_results_decider_analyzer = lambda: Agent(
+# search_results_decider_analyzer = Agent(
 #     name="Search Results Decider and Analyzer",
 #      instructions="I am an expert in analyzing search results and deciding which results to use for their html text. I can help with analyzing search results and deciding which results to use for their html text.",
 #      functions=[get_html_content],
 # )
 
-# web_information_extractor = lambda: Agent(
+# web_information_extractor = Agent(
 #     name="Web Information Extractor",
 #     instructions="I am an expert in extracting information from web pages. I can help with extracting information from web pages.",
 # )
-combined_web_agent = lambda: Agent(
+
+combined_web_agent = Agent(
     name="Combined Web Agent",
     instructions="""I am an expert in web search, analysis, and information extraction. My capabilities include:
     1. Using Google Search to find relevant information.
     2. Analyzing search results and deciding which results to use for their HTML text.
     3. Extracting specific information from web pages.
     I can help with web searches, summarizing search results, analyzing search results, and extracting information from web pages.""",
-    functions=[scrape_google_results, get_html_content]
+    functions=[web_search, get_html_content],
 )
 
 
