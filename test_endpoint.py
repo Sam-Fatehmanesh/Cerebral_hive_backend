@@ -4,6 +4,7 @@ import json
 
 def test_api():
     base_url = "http://localhost:8090/"
+    # base_url = "https://cerebral-hive-backend.onrender.com"
     headers = {"Content-Type": "application/json"}
     timeout = 10  # 10 seconds timeout
 
