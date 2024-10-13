@@ -1,3 +1,4 @@
+from openai import OpenAI
 from swarm import Swarm, Agent
 from websearch import scrape_web
 

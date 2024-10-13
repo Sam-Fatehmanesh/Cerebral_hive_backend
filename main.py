@@ -1,3 +1,5 @@
+import asyncio
+import json
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
@@ -5,8 +7,6 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
-import inference
-
 from inference import get_response
 
 load_dotenv()
@@ -60,11 +60,13 @@ async def post_query(query: Query):
     try:
         embedding = generate_embedding(query.query)
         context = search_pinecone(embedding)
+        response = get_response(query.query + "\n\nContext:\n" + "\n".join(context))
 
-        return StreamingResponse(
-            get_response(query.query + "\n\nContext:\n" + "\n".join(context)),
-            media_type="text/event-stream",
-        )
+        async def generate():
+            for part in response:
+                yield json.dumps(part)
+
+        return StreamingResponse(generate(), media_type="text/event-stream")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -18,6 +18,9 @@ def test_api():
             stream=True,
         )
 
+        for chunk in response.iter_content(chunk_size=8192):
+            print(chunk.decode("utf-8"))
+
         if response.status_code == 200:
             print("Get Context - Success!")
             print("Response:", response.json())
