@@ -1,11 +1,12 @@
 import os
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 import inference
+import time
 
 from inference import get_response
 
@@ -54,28 +55,57 @@ def search_pinecone(embedding):
     results = index.query(vector=embedding, top_k=5, include_metadata=True)
     return [match.metadata.get("text", "") for match in results.matches]
 
+class ChatCompletionRequest(BaseModel):
+    messages: list
+    model: str
+    max_tokens: int = 2048
+    stream: bool = False
 
-@app.post("/api/post_query")
-async def post_query(query: Query):
+@app.post("/chat/completions")
+async def post_query(request: ChatCompletionRequest):
     try:
-        embedding = generate_embedding(query.query)
+        query = next((msg['content'] for msg in reversed(request.messages) if msg['role'] == 'user'), None)
+        print("Query:", query)
+        embedding = generate_embedding(query)
         context = search_pinecone(embedding)
 
-        response = get_response(query.query + "\n\nContext:\n" + "\n".join(context))
-        response = max(
+        response = get_response(query + "\n\nContext:\n" + "\n".join(context))
+        _response = max(
             (message["content"] for message in response.messages if message["content"]),
             key=len,
             default="",
         )
 
-        store_answer(query.query, response)
-        return {"response": response}
+        store_answer(query, _response)
+
+        openai_response = {
+            "id": "chatcmpl-" + os.urandom(12).hex(),
+            "object": "chat.completion",
+            "created": int(time.time()),
+            "model": request.model,
+            "choices": [{
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": _response
+                },
+                "finish_reason": "stop"
+            }],
+            "usage": {
+                "prompt_tokens": len(query.split()),
+                "completion_tokens": len(_response.split()),
+                "total_tokens": len(query.split()) + len(_response.split())
+            }
+        }
+
+        print("Response:", openai_response)
+        return JSONResponse(content=openai_response, media_type="application/json")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/store_answer")
+@app.post("/store_answer")
 async def store_answer_endpoint(query: Query, answer: Answer):
     try:
         store_answer(query.query, answer.answer)

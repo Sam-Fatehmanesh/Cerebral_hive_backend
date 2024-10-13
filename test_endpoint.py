@@ -3,15 +3,15 @@ import json
 
 
 def test_api():
-    base_url = "http://localhost:8090/api"
+    base_url = "http://localhost:8090/"
     headers = {"Content-Type": "application/json"}
     timeout = 10  # 10 seconds timeout
 
     try:
         # Test post_query
-        query = {"query": "What is the least common type of dog right in 2024?"}
+        query = {"query": "What is the least common type of dog?"}
         response = requests.post(
-            f"{base_url}/post_query",
+            f"{base_url}/completions",
             headers=headers,
             json=query,
             timeout=timeout,
