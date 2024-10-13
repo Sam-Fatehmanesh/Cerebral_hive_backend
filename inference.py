@@ -76,7 +76,7 @@ for expert in expert_agents:
 
 
 def get_response(content):
-    return client.run(
+    return client.run_and_stream(
         agent=router_agent,
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
