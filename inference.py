@@ -54,12 +54,12 @@ web_scraper_agent = Agent(
 
 
 expert_agents = [
-    # python_expert,
-    # data_structures_expert,
-    # algorithms_expert,
-    # web_development_expert,
-    # database_expert,
-    # machine_learning_expert,
+    python_expert,
+    data_structures_expert,
+    algorithms_expert,
+    web_development_expert,
+    database_expert,
+    machine_learning_expert,
     web_scraper_agent,
 ]
 
