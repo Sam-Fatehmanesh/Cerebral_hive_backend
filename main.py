@@ -1,15 +1,20 @@
 import asyncio
 import json
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 from inference import get_response
+import logging
 
 load_dotenv()
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -55,6 +60,20 @@ def search_pinecone(embedding):
     return [match.metadata.get("text", "") for match in results.matches]
 
 
+def extract_response_data(obj):
+    if isinstance(obj, Response):
+        return {
+            "status_code": obj.status_code,
+            "headers": dict(obj.headers),
+            "body": obj.body.decode() if hasattr(obj, 'body') and obj.body else str(obj)
+        }
+    elif hasattr(obj, 'to_dict'):
+        return obj.to_dict()
+    elif hasattr(obj, '__dict__'):
+        return {k: str(v) for k, v in obj.__dict__.items() if not k.startswith('_')}
+    else:
+        return {"content": str(obj)}
+
 @app.post("/api/post_query")
 async def post_query(query: Query):
     try:
@@ -63,12 +82,29 @@ async def post_query(query: Query):
         response = get_response(query.query + "\n\nContext:\n" + "\n".join(context))
 
         async def generate():
-            for part in response:
-                yield json.dumps(part)
+            if hasattr(response, '__iter__'):
+                for part in response:
+                    try:
+                        if isinstance(part, dict):
+                            yield json.dumps(part) + "\n"
+                        elif isinstance(part, str):
+                            yield json.dumps({"content": part}) + "\n"
+                        elif isinstance(part, Response):
+                            yield json.dumps(extract_response_data(part)) + "\n"
+                            break  # Stop iteration if we encounter a Response object
+                        else:
+                            yield json.dumps(extract_response_data(part)) + "\n"
+                    except Exception as e:
+                        logger.error(f"Error serializing part: {e}")
+                        yield json.dumps({"error": f"Error serializing response part: {str(e)}"}) + "\n"
+            else:
+                yield json.dumps(extract_response_data(response)) + "\n"
+            yield json.dumps({"end": True}) + "\n"  # Signal the end of the stream
 
-        return StreamingResponse(generate(), media_type="text/event-stream")
+        return StreamingResponse(generate(), media_type="application/x-ndjson")
 
     except Exception as e:
+        logger.error(f"Error in post_query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -246,3 +282,5 @@ if __name__ == "__main__":
 #     uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
 
 # # uvicorn main:app --reload --port 8090
+
+
