@@ -133,6 +133,8 @@ async def post_query(request: ChatCompletionRequest):
                 }
             }
 
+            print("Chat Completion Response:", openai_response)
+
             return JSONResponse(content=openai_response)
 
     except Exception as e:
