@@ -3,18 +3,18 @@ import json
 
 
 def test_api():
-    base_url = "http://localhost:8090/"
-    # base_url = "https://cerebral-hive-backend.onrender.com"
+    base_url = "https://cerebral-hive-backend.onrender.com"
     headers = {"Content-Type": "application/json"}
     timeout = 10  # 10 seconds timeout
+    query = "I am a query!"
 
     try:
         # Test post_query
         chat_completion_request = {
             "messages": [
-                {"role": "user", "content": "What is the least common type of dog?"}
+                {"role": "user", "content": query}
             ],
-            "model": "gpt-3.5-turbo",  # or whatever model you're using
+            "model": "gpt-4o",  # or whatever model you're using
             "max_tokens": 2048,
             "stream": False
         }
