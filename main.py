@@ -56,12 +56,9 @@ def search_pinecone(embedding):
 
 
 @app.post("/api/get_context")
-async def get_context(query: Query):
+async def post_query(query: Query):
     try:
-        # Generate embedding for the query
         embedding = generate_embedding(query.query)
-
-        # Search Pinecone for relevant context
         context = search_pinecone(embedding)
 
         inference.stream_response(query.query, context)
