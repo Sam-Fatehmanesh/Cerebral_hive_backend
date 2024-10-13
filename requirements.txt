@@ -12,4 +12,5 @@ python-dotenv
 requests
 tqdm
 uvicorn
+scipy
 git+https://github.com/openai/swarm.git
