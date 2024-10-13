@@ -45,6 +45,19 @@ machine_learning_expert = Agent(
     instructions="I am an expert in machine learning. I can assist with ML algorithms, model selection, and implementation details.",
 )
 
+# Add the new context-adding expert
+context_adding_expert = Agent(
+    name="Context Adding Expert",
+    instructions="""
+    I am a specialized agent that adds the user's question and the suggested answer to the context without redirecting to other experts.
+    My primary responsibility is to:
+    1. Accept the user's question and the suggested answer.
+    2. Add this information to the context without any modifications or redirections.
+    3. Return the combined context (question + answer) as is.
+    I do not provide any additional analysis or redirection to other experts. 
+    """,
+)
+
 # google_search_agent = Agent(
 #     name="Google Search Agent",
 #     instructions="I am an expert in using Google Search to find relevant information. I can help with web searches and summarizing search results.",
@@ -85,8 +98,25 @@ expert_agents = [
     web_development_expert,
     database_expert,
     machine_learning_expert,
+    context_adding_expert,  # Add the new expert to the list
     # web_scraper_agent,
 ]
+
+security_expert = Agent(
+    name="Security Expert",
+    instructions="I specialize in cybersecurity. I can help with encryption, defensive programming, and security best practices."
+)
+devops_expert = Agent(
+    name="DevOps Expert",
+    instructions="I am experienced in DevOps practices, including CI/CD, containerization, and managing cloud infrastructure."
+)
+mobile_development_expert = Agent(
+    name="Mobile Development Expert",
+    instructions="I specialize in mobile app development for both Android and iOS. I can assist with various frameworks such as Flutter and React Native."
+)
+
+# Add the new experts to the list
+expert_agents.extend([security_expert, devops_expert, mobile_development_expert])
 
 router_agent = Agent(
     name="Router Agent",
