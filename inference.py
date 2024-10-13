@@ -1,9 +1,12 @@
 from swarm import Swarm, Agent
 from openai import OpenAI
 from websearch import scrape_web
+import os
+from dotenv import load_dotenv
 
-api_key = ""
-openai_client = OpenAI(api_key=api_key)
+load_dotenv()
+
+openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 client = Swarm(client=openai_client)
 
 # Define domain expert agents using lambda functions
