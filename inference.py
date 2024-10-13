@@ -1,6 +1,6 @@
 from swarm import Swarm, Agent
 from openai import OpenAI
-from websearch import web_search, get_html_content
+from websearch import get_html_content, scrape_google_results
 
 
 OPENAI_API_KEY = "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"
@@ -60,7 +60,7 @@ combined_web_agent = lambda: Agent(
     2. Analyzing search results and deciding which results to use for their HTML text.
     3. Extracting specific information from web pages.
     I can help with web searches, summarizing search results, analyzing search results, and extracting information from web pages.""",
-    functions=[web_search, get_html_content]
+    functions=[scrape_google_results, get_html_content]
 )
 
 

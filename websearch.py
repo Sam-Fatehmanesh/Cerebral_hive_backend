@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 
+
 def get_html_content(url):
     try:
         response = requests.get(url)
@@ -10,12 +11,8 @@ def get_html_content(url):
     except requests.RequestException as e:
         return f"An error occurred while fetching the URL: {str(e)}"
 
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlencode
 
-
-def scrape_google_results(query, num_results=5):
+def scrape_google_results(query, num_results=16):
     try:
         # Construct the Google search URL
         search_url = f"https://www.google.com/search?{urlencode({'q': query})}"
