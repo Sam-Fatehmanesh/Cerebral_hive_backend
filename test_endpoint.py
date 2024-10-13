@@ -39,6 +39,8 @@ def test_api():
             print("Chat Completion - Error:", response.status_code)
             print("Response:", response.text)
 
+        '''
+
         # Simulate answer generation (this would be done by the Continue frontend)
         answer = "The capital of France is Paris."
 
@@ -57,6 +59,7 @@ def test_api():
         else:
             print("Store Answer - Error:", response.status_code)
             print("Response:", response.text)
+        '''
 
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
