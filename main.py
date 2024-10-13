@@ -9,6 +9,7 @@ import inference
 import time
 import asyncio
 import json
+import pprint
 
 from inference import get_response
 
@@ -143,15 +144,20 @@ async def store_answer_endpoint(query: Query, answer: Answer):
 
 def store_answer(question: str, answer: str):
     embedding = generate_embedding(answer)
-    index.upsert(
-        vectors=[
-            {
-                "id": f"q_{hash(question)}",
-                "values": embedding,
-                "metadata": {"text": answer, "question": question},
-            }
-        ]
-    )
+    vector_id = f"q_{hash(question)}"
+    try:
+        index.upsert(
+            vectors=[
+                {
+                    "id": vector_id,
+                    "values": embedding,
+                    "metadata": {"text": answer, "question": question},
+                }
+            ]
+        )
+        print(f"Vector stored successfully with ID: {vector_id}")
+    except Exception as e:
+        print(f"Error storing vector: {e}")
 
 
 @app.get("/test")
@@ -159,9 +165,43 @@ async def test_endpoint():
     return {"message": "Server is running"}
 
 
-if __name__ == "__main__":
-    import uvicorn
+def print_vector_db_contents():
+    print("Contents of the Pinecone Vector Database:")
+    try:
+        # Get index statistics
+        stats = index.describe_index_stats()
+        print(f"Total vectors: {stats.total_vector_count}")
+        print(f"Dimension: {stats.dimension}")
 
+        # Fetch all vectors
+        fetch_response = index.query(
+            vector=[0.0] * stats.dimension,  # dummy vector
+            top_k=stats.total_vector_count,
+            include_values=True,
+            include_metadata=True
+        )
+        
+        if not fetch_response.matches:
+            print("No vectors found in the database.")
+            return
+
+        for match in fetch_response.matches:
+            print(f"\nID: {match.id}")
+            print("Metadata:")
+            pprint.pprint(match.metadata)
+            print("Vector (first 5 elements):")
+            print(match.values[:5])
+            print("-" * 50)
+    except Exception as e:
+        print(f"An error occurred while fetching vector database contents: {e}")
+        print("Index description:")
+        pprint.pprint(index.describe_index_stats().to_dict())
+if __name__ == "__main__":
+    # Print the contents of the vector database
+    print_vector_db_contents()
+
+    # Start the FastAPI server
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
 
 # uvicorn main:app --reload --port 8090
