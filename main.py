@@ -1,4 +1,5 @@
 import os
+import pprint
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
@@ -9,7 +10,6 @@ import inference
 import time
 import asyncio
 import json
-import pprint
 
 from inference import get_response
 
@@ -75,6 +75,7 @@ async def post_query(request: ChatCompletionRequest):
         response = get_response(query + "\n\nContext:\n" + "\n".join(context))
         
         async def generate():
+            full_response = ""
             for message in response.messages:
                 if message["content"]:
                     chunk = {
@@ -92,7 +93,11 @@ async def post_query(request: ChatCompletionRequest):
                         }]
                     }
                     yield f"data: {json.dumps(chunk)}\n\n"
+                    full_response += message["content"]
                     await asyncio.sleep(0.01)
+            
+            # Store the answer after generating the full response
+            store_answer(query, full_response)
             
             yield "data: [DONE]\n\n"
 
@@ -105,6 +110,7 @@ async def post_query(request: ChatCompletionRequest):
                 default="",
             )
 
+            # Store the answer for non-streaming response
             store_answer(query, _response)
 
             openai_response = {
@@ -144,20 +150,15 @@ async def store_answer_endpoint(query: Query, answer: Answer):
 
 def store_answer(question: str, answer: str):
     embedding = generate_embedding(answer)
-    vector_id = f"q_{hash(question)}"
-    try:
-        index.upsert(
-            vectors=[
-                {
-                    "id": vector_id,
-                    "values": embedding,
-                    "metadata": {"text": answer, "question": question},
-                }
-            ]
-        )
-        print(f"Vector stored successfully with ID: {vector_id}")
-    except Exception as e:
-        print(f"Error storing vector: {e}")
+    index.upsert(
+        vectors=[
+            {
+                "id": f"q_{hash(question)}",
+                "values": embedding,
+                "metadata": {"text": answer, "question": question},
+            }
+        ]
+    )
 
 
 @app.get("/test")
@@ -196,12 +197,10 @@ def print_vector_db_contents():
         print(f"An error occurred while fetching vector database contents: {e}")
         print("Index description:")
         pprint.pprint(index.describe_index_stats().to_dict())
+        
 if __name__ == "__main__":
-    # Print the contents of the vector database
-    print_vector_db_contents()
-
-    # Start the FastAPI server
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
 
 # uvicorn main:app --reload --port 8090
