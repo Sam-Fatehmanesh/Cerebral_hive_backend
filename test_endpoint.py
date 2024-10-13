@@ -14,7 +14,7 @@ def test_api():
             "messages": [
                 {"role": "user", "content": "What is the least common type of dog?"}
             ],
-            "model": "gpt-3.5-turbo",  # or whatever model you're using
+            "model": "gpt-4o",  # or whatever model you're using
             "max_tokens": 2048,
             "stream": False
         }
