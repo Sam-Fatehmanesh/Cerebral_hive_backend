@@ -54,7 +54,8 @@ machine_learning_expert = Agent(
 #     name="Web Information Extractor",
 #     instructions="I am an expert in extracting information from web pages. I can help with extracting information from web pages.",
 # )
-combined_web_agent = lambda: Agent(
+
+combined_web_agent = Agent(
     name="Combined Web Agent",
     instructions="""I am an expert in web search, analysis, and information extraction. My capabilities include:
     1. Using Google Search to find relevant information.
